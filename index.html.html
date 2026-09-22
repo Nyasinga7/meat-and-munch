@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Butchery Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #241A14;
+    --brick: #8C2E1B;
+    --brick-deep: #6F2213;
+    --paper: #F4ECD8;
+    --paper-dim: #E8DCBE;
+    --card: #FFFCF4;
+    --mustard: #C4841F;
+    --line: rgba(36,26,20,0.16);
+    --ok: #3F6B3A;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Work Sans', Arial, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #F4ECD8;
+      --brick: #D9633F;
+      --brick-deep: #E07850;
+      --paper: #1C1510;
+      --paper-dim: #241B14;
+      --card: #241B14;
+      --mustard: #E0A94A;
+      --line: rgba(244,236,216,0.16);
+      --ok: #7FAE78;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #F4ECD8;
+    --brick: #D9633F;
+    --brick-deep: #E07850;
+    --paper: #1C1510;
+    --paper-dim: #241B14;
+    --card: #241B14;
+    --mustard: #E0A94A;
+    --line: rgba(244,236,216,0.16);
+    --ok: #7FAE78;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 18px 140px; }
+
+  header.top {
+    background: var(--brick);
+    color: var(--paper);
+    padding: 28px 18px 22px;
+    position: relative;
+  }
+  header.top .wrap { padding-left: 0; padding-right: 0; padding-bottom: 0; }
+  .shopname {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 8vw, 38px);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .tagline {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.88;
+    max-width: 40ch;
+  }
+  .meta-row {
+    display: flex;
+    gap: 18px;
+    margin-top: 16px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    opacity: 0.92;
+  }
+  .meta-row span { white-space: nowrap; }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 30px 0 4px;
+  }
+  .section-sub {
+    font-size: 13.5px;
+    color: var(--ink);
+    opacity: 0.65;
+    margin: 0 0 14px;
+  }
+
+  .menu-list { border-top: 1px solid var(--line); }
+  .item-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 14px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .item-name { font-weight: 600; font-size: 16.5px; }
+  .item-desc { font-size: 13px; opacity: 0.65; grid-column: 1 / 2; margin-top: -2px; }
+  .item-price {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--brick);
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    align-self: start;
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 1px;
+  }
+  [data-theme="dark"] .item-price, @media (prefers-color-scheme: dark) { }
+  .item-price { color: var(--brick); }
+
+  .qty-row {
+    grid-column: 1 / 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--card);
+    overflow: hidden;
+  }
+  .stepper button {
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .stepper button:active { background: var(--paper-dim); }
+  .stepper .qty-val {
+    min-width: 46px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .qty-unit { font-size: 12.5px; opacity: 0.6; }
+  .line-total {
+    margin-left: auto;
+    font-size: 13.5px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .line-total.show { opacity: 0.85; }
+
+  form.details {
+    display: grid;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  label { font-size: 13px; font-weight: 600; opacity: 0.8; display: block; margin-bottom: 5px; }
+  input[type="text"], input[type="tel"], textarea, select {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 16px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: 2px solid var(--brick);
+    outline-offset: 1px;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .field-row { grid-template-columns: 1fr; } }
+
+  .note-box {
+    background: var(--paper-dim);
+    border-radius: 10px;
+    padding: 13px 15px;
+    font-size: 13px;
+    margin-top: 22px;
+    line-height: 1.55;
+  }
+  .note-box strong { font-weight: 700; }
+
+  .cartbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--brick);
+    color: var(--paper);
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.18);
+    z-index: 20;
+  }
+  .cartbar-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .cart-count { font-size: 12.5px; opacity: 0.85; }
+  .cart-total {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+  }
+  .order-btn {
+    background: var(--mustard);
+    color: var(--ink);
+    border: none;
+    border-radius: 9px;
+    padding: 13px 20px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .order-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .order-btn:not(:disabled):active { transform: translateY(1px); }
+
+  .toast {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 0.96; }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--brick-deep);
+    margin-top: -6px;
+    min-height: 15px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="shopname" id="shopName">Fresh Cuts Butchery</p>
+    <p class="tagline" id="tagline">Order today, delivered fresh to your door. Pay by M-Pesa.</p>
+    <div class="meta-row">
+      <span id="hoursMeta">Open 7am – 8pm</span>
+      <span id="areaMeta">Delivers within Nairobi</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-title">Choose your order</p>
+  <p class="section-sub">Beef and goat are sold by amount, starting from KES 100. Everything else is priced per item.</p>
+  <div class="menu-list" id="menuList"></div>
+
+  <p class="section-title">Delivery details</p>
+  <p class="section-sub">This goes with your order on WhatsApp.</p>
+  <form class="details" id="detailsForm">
+    <div>
+      <label for="custName">Your name</label>
+      <input type="text" id="custName" placeholder="e.g. Wanjiru Kamau" autocomplete="name">
+      <div class="field-error" id="err-name"></div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label for="custPhone">Phone number</label>
+        <input type="tel" id="custPhone" placeholder="07xx xxx xxx" autocomplete="tel">
+        <div class="field-error" id="err-phone"></div>
+      </div>
+      <div>
+        <label for="custTime">Preferred time</label>
+        <select id="custTime">
+          <option>As soon as possible</option>
+          <option>This morning</option>
+          <option>This afternoon</option>
+          <option>This evening</option>
+          <option>Tomorrow morning</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label for="custAddress">Delivery address / area</label>
+      <input type="text" id="custAddress" placeholder="Estate, street, house / gate no." autocomplete="street-address">
+      <div class="field-error" id="err-address"></div>
+    </div>
+    <div>
+      <label for="custNotes">Notes (optional)</label>
+      <textarea id="custNotes" placeholder="e.g. cut into smaller pieces, call before arriving"></textarea>
+    </div>
+  </form>
+
+  <div class="note-box">
+    <strong>How ordering works:</strong> pick your items, fill in your details, then tap "Send order on WhatsApp." It opens a message already filled in for you — just hit send. Pay by M-Pesa to Till Number <strong id="tillNote">1619398</strong> once we confirm your order and delivery time.
+  </div>
+
+</div>
+
+<div class="cartbar">
+  <div class="cartbar-inner">
+    <div>
+      <div class="cart-count" id="cartCount">No items selected</div>
+      <div class="cart-total" id="cartTotal">KES 0</div>
+    </div>
+    <button class="order-btn" id="orderBtn" disabled>Send order on WhatsApp</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   EDIT YOUR SHOP DETAILS AND PRICES HERE
+   Everything below in CONFIG is safe to change.
+   Prices are placeholders — replace with your real prices.
+   ========================================================= */
+const CONFIG = {
+  shopName: "Meat & Munch",
+  tagline: "Order today, delivered fresh to your door. Pay by M-Pesa till.",
+  hours: "Open 7am – 8pm",
+  area: "Delivers within Nairobi",
+  whatsappNumber: "254796669759", // no + or spaces
+  tillNumber: "1619398",
+  // Two kinds of items:
+  // mode "weight"  -> sold by weight, customer picks a KES amount (buy as little as minAmount worth)
+  //                   needs: pricePerKg, minAmount
+  // mode "unit"    -> fixed price per piece/plate/cup, customer picks quantity
+  //                   needs: price, unit (label shown after the number, e.g. "piece", "plate")
+  items: [
+    { name: "Beef", desc: "Buy any amount, from KES 100 worth", mode: "weight", pricePerKg: 700, minAmount: 100 },
+    { name: "Goat meat", desc: "Buy any amount, from KES 100 worth", mode: "weight", pricePerKg: 700, minAmount: 100 },
+    { name: "Chicken (whole)", desc: "Cleaned and ready to cook", mode: "unit", price: 600, unit: "whole chicken" },
+    { name: "Mutura", desc: "Sold per piece", mode: "unit", price: 10, unit: "piece" },
+    { name: "Chapati", desc: "Sold per piece", mode: "unit", price: 20, unit: "piece" },
+    { name: "Beef, chapati & veges", desc: "Full plate", mode: "unit", price: 100, unit: "plate" },
+    { name: "Soup", desc: "Per cup", mode: "unit", price: 25, unit: "cup" },
+    { name: "Chips", desc: "Per plate", mode: "unit", price: 100, unit: "plate" }
+  ]
+};
+/* ========================================================= */
+
+document.getElementById('shopName').textContent = CONFIG.shopName;
+document.getElementById('tagline').textContent = CONFIG.tagline;
+document.getElementById('hoursMeta').textContent = CONFIG.hours;
+document.getElementById('areaMeta').textContent = CONFIG.area;
+
+const fmt = n => 'KES ' + n.toLocaleString('en-KE', { maximumFractionDigits: 0 });
+
+// weight items: "amount" tracks KES chosen (0 = none). unit items: "qty" tracks piece count.
+const state = CONFIG.items.map(it => ({ ...it, amount: 0, qty: 0 }));
+
+function lineTotal(item) {
+  return item.mode === 'weight' ? item.amount : item.qty * item.price;
+}
+function isChosen(item) {
+  return item.mode === 'weight' ? item.amount > 0 : item.qty > 0;
+}
+
+const menuList = document.getElementById('menuList');
+
+function renderMenu() {
+  menuList.innerHTML = '';
+  state.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    if (item.mode === 'weight') {
+      row.innerHTML = `
+        <div class="item-name">${item.name}</div>
+        <div class="item-price">from ${fmt(item.minAmount)}<span style="font-size:11px;font-weight:500;opacity:.65;"> · KES ${item.pricePerKg}/kg</span></div>
+        <div class="item-desc">${item.desc}</div>
+        <div class="qty-row">
+          <div class="stepper">
+            <button type="button" aria-label="Decrease" data-act="dec" data-idx="${idx}">−</button>
+            <span class="qty-val" id="qty-${idx}">${item.amount ? fmt(item.amount) : '—'}</span>
+            <button type="button" aria-label="Increase" data-act="inc" data-idx="${idx}">+</button>
+          </div>
+          <span class="qty-unit" id="approx-${idx}">${item.amount ? '≈' + Math.round(item.amount / item.pricePerKg * 1000) + 'g' : ''}</span>
+          <span class="line-total" id="line-${idx}"></span>
+        </div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="item-name">${item.name}</div>
+        <div class="item-price">${fmt(item.price)}<span style="font-size:11px;font-weight:500;opacity:.65;"> /${item.unit}</span></div>
+        <div class="item-desc">${item.desc}</div>
+        <div class="qty-row">
+          <div class="stepper">
+            <button type="button" aria-label="Decrease" data-act="dec" data-idx="${idx}">−</button>
+            <span class="qty-val" id="qty-${idx}">${item.qty}</span>
+            <button type="button" aria-label="Increase" data-act="inc" data-idx="${idx}">+</button>
+          </div>
+          <span class="qty-unit">${item.unit}</span>
+          <span class="line-total" id="line-${idx}"></span>
+        </div>
+      `;
+    }
+    menuList.appendChild(row);
+  });
+}
+renderMenu();
+
+menuList.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const idx = Number(btn.dataset.idx);
+  const item = state[idx];
+
+  if (item.mode === 'weight') {
+    const step = 50;
+    if (btn.dataset.act === 'inc') {
+      item.amount = item.amount === 0 ? item.minAmount : item.amount + step;
+    } else if (item.amount <= item.minAmount) {
+      item.amount = 0;
+    } else {
+      item.amount = Math.max(item.minAmount, item.amount - step);
+    }
+    document.getElementById(`qty-${idx}`).textContent = item.amount ? fmt(item.amount) : '—';
+    document.getElementById(`approx-${idx}`).textContent = item.amount ? '≈' + Math.round(item.amount / item.pricePerKg * 1000) + 'g' : '';
+  } else {
+    if (btn.dataset.act === 'inc') item.qty += 1;
+    else item.qty = Math.max(0, item.qty - 1);
+    document.getElementById(`qty-${idx}`).textContent = item.qty;
+  }
+
+  const lineEl = document.getElementById(`line-${idx}`);
+  if (isChosen(item)) {
+    lineEl.textContent = fmt(lineTotal(item));
+    lineEl.classList.add('show');
+  } else {
+    lineEl.classList.remove('show');
+    lineEl.textContent = '';
+  }
+  updateCartBar();
+});
+
+function updateCartBar() {
+  const chosen = state.filter(isChosen);
+  const total = chosen.reduce((sum, i) => sum + lineTotal(i), 0);
+  document.getElementById('cartTotal').textContent = fmt(total);
+  document.getElementById('cartCount').textContent = chosen.length
+    ? `${chosen.length} item${chosen.length > 1 ? 's' : ''} selected`
+    : 'No items selected';
+  document.getElementById('orderBtn').disabled = chosen.length === 0;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function validate() {
+  let ok = true;
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+
+  document.getElementById('err-name').textContent = '';
+  document.getElementById('err-phone').textContent = '';
+  document.getElementById('err-address').textContent = '';
+
+  if (!name) { document.getElementById('err-name').textContent = 'Please add your name.'; ok = false; }
+  if (!phone || phone.replace(/\D/g, '').length < 9) {
+    document.getElementById('err-phone').textContent = 'Please add a valid phone number.'; ok = false;
+  }
+  if (!address) { document.getElementById('err-address').textContent = 'Please add a delivery address.'; ok = false; }
+  return ok;
+}
+
+document.getElementById('orderBtn').addEventListener('click', () => {
+  const chosen = state.filter(isChosen);
+  if (!chosen.length) return;
+  if (!validate()) { showToast('Please fill in your details above.'); return; }
+
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const time = document.getElementById('custTime').value;
+  const address = document.getElementById('custAddress').value.trim();
+  const notes = document.getElementById('custNotes').value.trim();
+
+  const total = chosen.reduce((sum, i) => sum + lineTotal(i), 0);
+
+  let msg = `Hello ${CONFIG.shopName}, I'd like to place an order:\n\n`;
+  chosen.forEach(i => {
+    if (i.mode === 'weight') {
+      const grams = Math.round(i.amount / i.pricePerKg * 1000);
+      msg += `• ${i.name} — ${fmt(i.amount)} (≈${grams}g)\n`;
+    } else {
+      msg += `• ${i.name} x${i.qty} ${i.unit} — ${fmt(i.qty * i.price)}\n`;
+    }
+  });
+  msg += `\nTotal: ${fmt(total)}\n`;
+  msg += `M-Pesa Till: ${CONFIG.tillNumber}\n\n`;
+  msg += `Name: ${name}\nPhone: ${phone}\nDelivery address: ${address}\nPreferred time: ${time}\n`;
+  if (notes) msg += `Notes: ${notes}\n`;
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+});
+</script>
+</body>
+</html>
